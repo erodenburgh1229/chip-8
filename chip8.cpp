@@ -161,5 +161,88 @@ void Chip8::OP_8xy1()
     uint8_t Vx = (opcode & 0x0F00u) >> 8u;
     uint8_t Vy = (opcode & 0x00F0u) >> 4u;
 
-    registers[Vx] = registers[Vx] | registers[Vy];
+    registers[Vx] |= registers[Vy];
+}
+
+// Set Vx = Vx AND Vy
+void Chip8::OP_8xy2()
+{
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+    uint8_t Vy = (opcode & 0x00F0u) >> 4u;
+
+    registers[Vx] &= registers[Vy];
+}
+
+// Set Vx = Vx XOR Vy
+void Chip8::OP_8xy3()
+{
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+    uint8_t Vy = (opcode & 0x00F0u) >> 4u;
+
+    registers[Vx] ^= registers[Vy];
+}
+
+// Set Vx = Vx + Vy, set VF = carry
+void Chip8::OP_8xy4()
+{
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+    uint8_t Vy = (opcode & 0x00F0u) >> 4u;
+
+    uint16_t sum = Vx + Vy;
+
+    registers[Vx] = sum & 0x00FFu;
+
+    if (sum > 255u)
+        registers[0xF] = 1u;
+    else
+        registers[0xF] = 0u;
+}
+
+// Set Vx = Vx - Vy, set VF = NOT borrow
+void Chip8::OP_8xy5()
+{
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+    uint8_t Vy = (opcode & 0x00F0u) >> 4u;
+
+    if (Vx > Vy)
+        registers[0xF] = 1;
+    else
+        registers[0xF] = 0;
+
+    registers[Vx] -= registers[Vy];
+}
+
+// Set Vx = Vx SHR 1
+void Chip8::OP_8xy6()
+{
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+
+    registers[0xF] = (registers[Vx] & 0x0001u);
+
+    registers[Vx] >>= 1;
+}
+
+// Set Vx = Vy - Vx, set VF = NOT borrow
+void Chip8::OP_8xy7()
+{
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+    uint8_t Vy = (opcode & 0x00F0u) >> 4u;
+
+    if (Vy > Vx)
+        registers[0xF] = 1;
+    else
+        registers[0xF] = 0;
+
+    registers[Vx] = registers[Vy] - registers[Vx];
+}
+
+// Set Vx = Vx SHL 1
+void Chip8::OP_8xyE()
+{
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+    uint8_t Vy = (opcode & 0x00F0u) >> 4u;
+
+    registers[0xF] = (registers[Vx] & 0x8000u);
+
+    registers[Vx] <<= 1;
 }
