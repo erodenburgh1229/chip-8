@@ -1,5 +1,6 @@
 #include "chip8.h"
 
+#include <cstdint>
 #include <fstream>
 #include <filesystem>
 
@@ -63,4 +64,102 @@ void Chip8::LoadROM(char const* filename)
         file.read(reinterpret_cast<char*>(&memory[START_ADDRESS]), size);
         file.close();
     }
+}
+
+// Instructions
+
+// CLS (Clear Screen)
+void Chip8::OP_00E0()
+{
+    memset(video, 0, sizeof(video));
+}
+
+// RET
+void Chip8::OP_00EE()
+{
+    --sp;
+    pc = stack[sp];
+}
+
+// JP addr
+void Chip8::OP_1nnn()
+{
+    uint16_t address = opcode & 0x0FFFu;
+    pc = address;
+}
+
+// CALL addr
+void Chip8::OP_2nnn()
+{
+    stack[sp] = pc;
+    ++sp;
+
+    uint16_t address = opcode & 0x0FFFu;
+    pc = address;
+}
+
+// Skip next instruction if Vx = kk
+void Chip8::OP_3xkk()
+{
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+    uint8_t byte = opcode & 0x00FFu;
+
+    if(registers[Vx] == byte)
+        pc +=2;
+}
+
+// Skip next instruction if Vx != kk
+void Chip8::OP_4xkk()
+{
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+    uint8_t byte = opcode & 0x00FFu;
+
+    if(registers[Vx] != byte)
+        pc += 2;
+}
+
+// Skip next instruction if Vx == Vy
+void Chip8::OP_5xy0()
+{
+    uint8_t Vx = (opcode & 0x0F00) >> 8u;
+    uint8_t Vy = (opcode & 0x00F0) >> 8u;
+
+    if(registers[Vx] == registers[Vy])
+        pc += 2;
+}
+
+// Set Vx = kk
+void Chip8::OP_6xkk()
+{
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+    uint8_t byte = opcode & 0x00FFu;
+
+    registers[Vx] = byte;
+}
+
+// Set Vx = Vx + kk
+void Chip8::OP_7xkk()
+{
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+    uint8_t byte = opcode & 0x00FFu;
+
+    registers[Vx] += byte;
+}
+
+// Set Vx = Vy
+void Chip8::OP_8xy0()
+{
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+    uint8_t Vy = (opcode & 0x00F0u) >> 4u;
+
+    registers[Vx] = registers[Vy];
+}
+
+// Set Vx = Vx OR Vy
+void Chip8::OP_8xy1()
+{
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+    uint8_t Vy = (opcode & 0x00F0u) >> 4u;
+
+    registers[Vx] = registers[Vx] | registers[Vy];
 }

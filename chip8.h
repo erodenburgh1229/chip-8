@@ -19,6 +19,19 @@ class Chip8
         uint32_t video[64 * 32]{};
 
     private:
+        // Instructions
+        void OP_00E0();
+        void OP_00EE();
+        void OP_1nnn();
+        void OP_2nnn();
+        void OP_3xkk();
+        void OP_4xkk();
+        void OP_5xy0();
+        void OP_6xkk();
+        void OP_7xkk();
+        void OP_8xy0();
+        void OP_8xy1();
+
         uint8_t registers[REGISTER_COUNT]{};
         uint8_t memory[MEMORY_SIZE]{};
         uint16_t index{};
