@@ -1,0 +1,36 @@
+#ifndef __CHIP8_HPP__
+#define __CHIP8_HPP__
+
+#include <cstdint>
+#include <chrono>
+#include <random>
+
+const unsigned int MEMORY_SIZE = 4096;
+const unsigned int REGISTER_COUNT = 16;
+const unsigned int STACK_LEVELS = 16;
+
+class Chip8
+{
+    public:
+        Chip8();
+        void LoadROM(char const* filename);
+
+        uint8_t keypad[16]{};
+        uint32_t video[64 * 32]{};
+
+    private:
+        uint8_t registers[REGISTER_COUNT]{};
+        uint8_t memory[MEMORY_SIZE]{};
+        uint16_t index{};
+        uint16_t pc{};
+        uint16_t stack[STACK_LEVELS]{};
+        uint8_t sp{};
+        uint8_t delayTimer{};
+        uint8_t soundTimer{};
+        uint16_t opcode;
+
+        std::default_random_engine randGen;
+        std::uniform_int_distribution<uint8_t> randByte;
+};
+
+#endif
