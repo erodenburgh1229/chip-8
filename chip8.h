@@ -8,6 +8,8 @@
 const unsigned int MEMORY_SIZE = 4096;
 const unsigned int REGISTER_COUNT = 16;
 const unsigned int STACK_LEVELS = 16;
+const unsigned int VIDEO_WIDTH = 64;
+const unsigned int VIDEO_HEIGHT = 32;
 
 class Chip8
 {
@@ -38,6 +40,11 @@ class Chip8
         void OP_8xy6();
         void OP_8xy7();
         void OP_8xyE();
+        void OP_9xy0();
+        void OP_Annn();
+        void OP_Bnnn();
+        void OP_Cxkk();
+        void OP_Dxyn();
 
         uint8_t registers[REGISTER_COUNT]{};
         uint8_t memory[MEMORY_SIZE]{};

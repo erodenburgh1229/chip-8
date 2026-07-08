@@ -246,3 +246,72 @@ void Chip8::OP_8xyE()
 
     registers[Vx] <<= 1;
 }
+
+// Skip next instruction if Vx != Vy
+void Chip8::OP_9xy0()
+{
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+    uint8_t Vy = (opcode & 0x00F0u) >> 4u;
+
+    if (registers[Vx] != registers[Vy])
+        pc += 2;
+}
+
+// Set I = nnn
+void Chip8::OP_Annn()
+{
+    index = opcode & 0x0FFFu;
+}
+
+// Jump to location nnn + V0
+void Chip8::OP_Bnnn()
+{
+    uint16_t address = opcode & 0x0FFFu;
+    pc = address + registers[0x0];
+}
+
+// Set Vx = random byte AND kk
+void Chip8::OP_Cxkk()
+{
+    uint8_t Vx = (opcode & 0x0F00) >> 8u;
+    uint8_t byte = opcode & 0x00FFu;
+
+    registers[Vx] = randByte(randGen) & byte;
+}
+
+//
+void Chip8::OP_Dxyn()
+{
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+    uint8_t Vy = (opcode & 0x00F0u) >> 4u;
+    uint8_t height = opcode & 0x000Fu;
+
+    // Wrap if going beyond screen boundaries
+    uint8_t xPos = registers[Vx] % VIDEO_WIDTH;
+    uint8_t yPos = registers[Vy] % VIDEO_HEIGHT;
+
+    registers[0xF] = 0;
+
+    for (int row {}; row < height; ++row)
+    {
+        uint8_t spriteByte = memory[index + row];
+
+        for (int col {}; col < 8; ++col)
+        {
+            uint8_t spritePixel = spriteByte & (0x80 >> col);
+            uint32_t* screenPixel = &video[(yPos + row) * VIDEO_WIDTH + (xPos + col)];
+
+            // Sprite Pixel is on
+            if (spritePixel)
+            {
+                if (*screenPixel == 0xFFFFFFFF)
+                {
+                    registers[0xF] = 1u;
+                }
+
+                // Effectively XOR with the sprite pixel
+                *screenPixel ^= 0xFFFFFFFF;
+            }
+        }
+    }
+}
