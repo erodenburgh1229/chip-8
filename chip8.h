@@ -45,6 +45,17 @@ class Chip8
         void OP_Bnnn();
         void OP_Cxkk();
         void OP_Dxyn();
+        void OP_Ex9E();
+        void OP_ExA1();
+        void OP_Fx07();
+        void OP_Fx0A();
+        void OP_Fx15();
+        void OP_Fx18();
+        void OP_Fx1E();
+        void OP_Fx29();
+        void OP_Fx33();
+        void OP_Fx55();
+        void OP_Fx65();
 
         uint8_t registers[REGISTER_COUNT]{};
         uint8_t memory[MEMORY_SIZE]{};
