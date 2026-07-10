@@ -4,6 +4,8 @@
 #include <cstdint>
 #include <chrono>
 #include <random>
+#include <functional>
+#include <array>
 
 const unsigned int MEMORY_SIZE = 4096;
 const unsigned int REGISTER_COUNT = 16;
@@ -21,7 +23,13 @@ class Chip8
         uint32_t video[64 * 32]{};
 
     private:
+        void Table0();
+        void Table8();
+        void TableE();
+        void TableF();
+
         // Instructions
+        void OP_NULL();
         void OP_00E0();
         void OP_00EE();
         void OP_1nnn();
@@ -69,6 +77,13 @@ class Chip8
 
         std::default_random_engine randGen;
         std::uniform_int_distribution<uint8_t> randByte;
+
+        using Chip8Func = std::function<void()>;
+        std::array<Chip8Func, 0xF + 1> table;
+        std::array<Chip8Func, 0xE + 1> table0;
+        std::array<Chip8Func, 0xE + 1> table8;
+        std::array<Chip8Func, 0xE + 1> tableE;
+        std::array<Chip8Func, 0x65 + 1> tableF;
 };
 
 #endif

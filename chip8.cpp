@@ -40,6 +40,88 @@ Chip8::Chip8() : randGen(std::chrono::system_clock::now().time_since_epoch().cou
 
     // Initialize RNG
     randByte = std::uniform_int_distribution<uint8_t>(0, 255U);
+
+    // Initialize our function table
+    table[0x0] = [this]()
+        {
+            uint8_t index = opcode & 0x00FFu;
+
+            if(table0[index])
+                table0[index]();
+        };
+    table[0x1] = [this]() { Chip8::OP_1nnn(); };
+    table[0x2] = [this]() { Chip8::OP_2nnn(); };
+    table[0x3] = [this]() { Chip8::OP_3xkk(); };
+    table[0x4] = [this]() { Chip8::OP_4xkk(); };
+    table[0x5] = [this]() { Chip8::OP_5xy0(); };
+    table[0x6] = [this]() { Chip8::OP_6xkk(); };
+    table[0x7] = [this]() { Chip8::OP_7xkk(); };
+    table[0x8] = [this]()
+        {
+            uint8_t index = opcode & 0x00FFu;
+
+            if(table8[index])
+                table8[index]();
+        };
+    table[0x9] = [this]() { Chip8::OP_9xy0(); };
+    table[0xA] = [this]() { Chip8::OP_Annn(); };
+    table[0xB] = [this]() { Chip8::OP_Bnnn(); };
+    table[0xC] = [this]() { Chip8::OP_Cxkk(); };
+    table[0xD] = [this]() { Chip8::OP_Dxyn(); };
+    table[0xE] = [this]()
+        {
+            uint8_t index = opcode & 0x00FFu;
+
+            if(tableE[index])
+                tableE[index]();
+        };
+    table[0xF] = [this]()
+        {
+            uint8_t index = opcode & 0x00FFu;
+
+            if(tableF[index])
+                tableF[index]();
+        };
+
+    // Initialize table0, table8, and tableD
+    for(int i {}; i <= 0xE; ++i)
+    {
+        table0[i] = [this]() { Chip8::OP_NULL(); };
+        table8[i] = [this]() { Chip8::OP_NULL(); };
+        tableE[i] = [this]() { Chip8::OP_NULL(); };
+    }
+
+    table0[0x0] = [this]() { Chip8::OP_00E0(); };
+    table0[0xE] = [this]() { Chip8::OP_00EE(); };
+
+    table8[0x0] = [this]() { Chip8::OP_8xy0(); };
+    table8[0x1] = [this]() { Chip8::OP_8xy1(); };
+    table8[0x2] = [this]() { Chip8::OP_8xy2(); };
+    table8[0x3] = [this]() { Chip8::OP_8xy3(); };
+    table8[0x4] = [this]() { Chip8::OP_8xy4(); };
+    table8[0x5] = [this]() { Chip8::OP_8xy5(); };
+    table8[0x6] = [this]() { Chip8::OP_8xy6(); };
+    table8[0x7] = [this]() { Chip8::OP_8xy7(); };
+    table8[0xE] = [this]() { Chip8::OP_8xyE(); };
+
+    tableE[0x1] = [this]() { Chip8::OP_ExA1(); };
+    tableE[0xE] = [this]() { Chip8::OP_Ex9E(); };
+
+    // tableF
+    for (int i {}; i <= 0x65; ++i)
+    {
+        tableF[i] = [this]() { Chip8::OP_NULL(); };
+    }
+
+    tableF[0x07] = [this]() { Chip8::OP_Fx07(); };
+	tableF[0x0A] = [this]() { Chip8::OP_Fx0A(); };
+	tableF[0x15] = [this]() { Chip8::OP_Fx15(); };
+	tableF[0x18] = [this]() { Chip8::OP_Fx18(); };
+	tableF[0x1E] = [this]() { Chip8::OP_Fx1E(); };
+	tableF[0x29] = [this]() { Chip8::OP_Fx29(); };
+	tableF[0x33] = [this]() { Chip8::OP_Fx33(); };
+	tableF[0x55] = [this]() { Chip8::OP_Fx55(); };
+	tableF[0x65] = [this]() { Chip8::OP_Fx65(); };
 }
 
 // Updated this function from the tutorial to use more modern C++ features
@@ -67,6 +149,11 @@ void Chip8::LoadROM(char const* filename)
 }
 
 // Instructions
+// No OP
+void Chip8::OP_NULL()
+{
+
+}
 
 // CLS (Clear Screen)
 void Chip8::OP_00E0()
