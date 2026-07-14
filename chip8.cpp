@@ -124,6 +124,24 @@ Chip8::Chip8() : randGen(std::chrono::system_clock::now().time_since_epoch().cou
 	tableF[0x65] = [this]() { Chip8::OP_Fx65(); };
 }
 
+void Chip8::Cycle()
+{
+    // Fetch the next instruction
+    opcode = (memory[pc] << 8u) | memory[pc+1];
+
+    // Increment the pc
+    pc += 2;
+
+    // execute the opcode
+    table[ (opcode & 0xF000u) >> 12u ]();
+
+    if (delayTimer > 0)
+        --delayTimer;
+
+    if (soundTimer > 0)
+        --soundTimer;
+}
+
 // Updated this function from the tutorial to use more modern C++ features
 void Chip8::LoadROM(char const* filename)
 {
@@ -151,9 +169,7 @@ void Chip8::LoadROM(char const* filename)
 // Instructions
 // No OP
 void Chip8::OP_NULL()
-{
-
-}
+{}
 
 // CLS (Clear Screen)
 void Chip8::OP_00E0()

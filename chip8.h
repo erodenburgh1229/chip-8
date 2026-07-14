@@ -17,16 +17,13 @@ class Chip8
 {
     public:
         Chip8();
+        void Cycle();
         void LoadROM(char const* filename);
 
         uint8_t keypad[16]{};
         uint32_t video[64 * 32]{};
 
     private:
-        void Table0();
-        void Table8();
-        void TableE();
-        void TableF();
 
         // Instructions
         void OP_NULL();
